@@ -1,0 +1,258 @@
+{% extends "mainwindow/wrapper.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% include "mainwindow/includes/books.html" %}
+    <br><br>
+    <div class="row">
+        <div class = "col-sm-9">
+                <div class="row">
+                    <div class="col-sm-12 card"><h3 class="navbar-brand headerTitle">Книга: {{ book.title }}
+                    </div>
+                </div>
+                    <br>
+                <div class="row">
+                <div class="col-sm-12 card"><h4 class="navbar-brand" style="padding-left: 20px">Описание:</h4>
+                <p>{{ book.about }}<p>
+                </div>
+                </div>
+        </div>
+        <div class="offset-xl-10" style="position:absolute"><img style="width: 200px" src="{{ book.image.url }}"></div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-sm-2 card text-center">
+            <p style="padding-top:7%">Цена: {{ book.cost }}</p>
+        </div>
+        {% if request.user.is_authenticated %}
+        <div class="nav-link col-sm-2 card text-center">
+            <a href="#" id="buy" class="book" data-slug='{{ book.slug }}' style="text-decoration:none">Купить<i class="fas fa-shopping-cart"></i></a>
+        </div>
+        <div  class = "offset-xl-3 col-sm-1 card">
+            <a href="#" id="like"><i class="fas fa-thumbs-up" style="color:blue"></i></a>
+            <span id="liked">{{ book.likes }}</span>
+        </div>
+        <div class = "col-sm-1 card">
+            <a href="#" id="dislike"><i class="fas fa-thumbs-down" style="color:red"></i></a>
+            <span id="disliked">{{ book.dislikes }}</span>
+        </div>
+        {% else %}
+        <div class="nav-link col-sm-7 text-center">
+            <div class="row">
+                <div class="col-sm-3 card">
+                    <a class="nav-link" href="{% url 'login' %}"><small>Войдите</small></a>
+                </div>
+                <div class="col-sm-4 card">
+                    <a class="nav-link" href='{% url "registration" %}'><small>Зарегистрируйтесь</small></a>
+                </div>
+                <div  class = "offset-xl-3 col-sm-1 card">
+            <a href="#" id="like"><i class="fas fa-thumbs-up" style="color:blue"></i></a>
+            <span id="liked">{{ book.likes }}</span>
+        </div>
+        <div class = "col-sm-1 card">
+            <a href="#" id="dislike"><i class="fas fa-thumbs-down" style="color:red"></i></a>
+            <span id="disliked">{{ book.dislikes }}</span>
+        </div>
+            </div>
+        </div>
+        
+        {% endif %}
+    </div>
+    <br><br>   
+    <div class="row"> 
+    <div class = "col-sm-3 card"><h5 class="brand">Комментарии:</h5></div>
+    </div>
+    <br>
+        {% if not book_comments.exists %}
+        <div class="row">
+            <div class = "col-sm-9 card">
+                <p>Нет комментариев</p>
+            </div>
+            <br>
+        </div>
+        {% endif %}
+        {% if book_comments.exists %}
+            {% for comment in book_comments %}
+            <div class="row">
+                <div class = "col-sm-3 card">{{ comment.author.username }}</div>
+                {% if request.user.username == "_SaFed_" %}
+                <div class = "offset-xl-4 col-sm-2 card">
+                    <a href='#' id="delete" class="delete-comment" data-slug='{{ comment.id }}' style="text-decoration:none">Удалить
+                        <small class="far fa-trash-alt"></small>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class = "col-sm-9 card">
+                        <p>{{ comment.content }}</p>
+                </div>
+                </div>
+                <div class="row">
+                    <div class="offset-xl-7 col-sm-2 card">{{ comment.timestamp|date:'Y-m-d'}}</div>   
+                </div>
+                <br>
+            {% endfor %}
+        {% endif %}
+        <div class = "col-sm-9 new_comment"></div>
+    <br>
+    {% if request.user.is_authenticated %}
+    <div class="row">
+    <div class = "col-sm-9 card">
+        <form action="" method="POST" class="post-form">
+            <input type="hidden" id = 'book' data-id="{{ book.id }}">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" value="Добавить комментарий" id="add_comment" data-toggle="modal" data-target=".bs-example-modal-sm">
+            <br>
+        </form>
+    </div>
+    </div>
+    <br>
+    {% else %}
+    <div class="row">
+        <div class = "col-sm-9 card">
+            <p>Вы не можете оставлять комментарии. Пожалуйста, войдите или зарегистрируйтесь</p>
+        </div>
+        </div>
+        <br>
+    {% endif %}
+    {% block jquery %}
+        <script>
+            $(document).ready(function(){
+                function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+                var csrftoken = getCookie('csrftoken');
+                $('#add_comment').on('click', function(e){
+                    e.preventDefault()
+                    var book_id = $('#book').attr('data-id')
+                    var comment = $('#id_comment').val()
+                
+                    data = {
+                    book_id: book_id,
+                    comment: comment,
+                    csrfmiddlewaretoken: csrftoken
+                    }
+                
+                    $.ajax({
+                        type: "POST",
+                        url: "{% url 'add_comment' %}",
+                        dataType: 'json',
+                        data: data,
+                        success: function(data){
+                            $.each(data, function(field){
+                                $('.new_comment').prepend('<div class = "col-sm-3 card">'+data[field]['author']+
+                                    '</div><div class = "card"><p>'+data[field]['comment']+
+                                    '</p></div><div class="row"  style="padding-left:30%"><div class="offset-xl-9 col-sm-3 card">'+
+                                    data[field]['timestamp']+'</div></div>')
+                                $('#id_comment').val('')
+                            })
+                            window.location.reload()
+                        } 
+                    })
+                })
+            })
+        </script>
+        <script>
+            $(document).ready(function(){
+                $('#like').on('click', function(e){
+                    e.preventDefault()
+                    var like = 'like'
+                    var book_id = $('#book').attr('data-id')
+                    data = {
+                        book_id: book_id,
+                        like: like
+                    }
+
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'user_likes' %}",
+                        dataType: 'json',
+                        data: data,
+                        success: function(data){
+                            $('#liked').html(data.likes)
+                            $('#disliked').html(data.dislikes)
+                        }
+                    })
+                })
+            })
+
+            $(document).ready(function(){
+                $('#dislike').on('click', function(e){
+                    e.preventDefault()
+                    var dislike = 'dislike'
+                    var book_id = $('#book').attr('data-id')
+                    data = {
+                        book_id: book_id,
+                        dislike: dislike
+                    }
+
+                    $.ajax({
+                        type: "GET",
+                        url: "{% url 'user_likes' %}",
+                        dataType: 'json',
+                        data: data,
+                        success: function(data){
+                            $('#liked').html(data.likes)
+                            $('#disliked').html(data.dislikes)
+                        }
+                    })
+                })
+            })
+        </script>
+        <script>
+            $(document).ready(function(){
+                $('.book').on('click', function(e){
+                    e.preventDefault()
+                    var book_slug = $(this).attr('data-slug')
+
+                    data = {
+                        book_slug: book_slug
+                    }
+                    $.ajax({
+                        type:"GET",
+                        url: "{% url 'buy_book' %}",
+                        dataType: 'json',
+                        data : data,
+                        success: function(data){
+                        }
+                    })
+                })
+            })
+        </script>
+        <script>
+        $(document).ready(function(){
+            $('.delete-comment').on('click', function(e){
+                e.preventDefault()
+                var content = $(this).attr('data-slug')
+                data = {
+                    id: content
+                }
+                $.ajax({
+                    type:"GET",
+                    url: "{% url 'delete_comment' %}",
+                    dataType: 'json',
+                    data : data,
+                    success: function(data){
+                        window.location.reload()
+                    }
+                })
+            })
+        })
+    </script>
+    {% endblock jquery %}
+
+    
+{% endblock %}

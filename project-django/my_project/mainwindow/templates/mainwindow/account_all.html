@@ -1,0 +1,61 @@
+{% extends "mainwindow/wrapper.html" %}
+{% block content %}
+
+<div class="card text-center"><h4>Личный кабинет</h4></div>
+<br><br>
+<div class="card text-center">
+    <h5>Пользователи</h5>
+</div>
+<br>
+    <div class="row">
+    {% for user in current_user %}
+        <div class="col-sm-6 text-center">
+            <div class="card">
+                <p>
+                {% if request.user == user.user %}
+                    Удаление запрещено!
+                    <br>
+                {% else %}
+                <a href='#' id="delete" class="delete-user" data-slug='{{ user.user }}' style="text-decoration:none">Удалить
+                <small class="far fa-trash-alt"></small>
+                </a>
+                <br>
+                {% endif %}
+                    Логин: {{ user.user }}
+                    <br>
+                    Имя: {{ user.first_name }}
+                    <br>
+                    Фамилия: {{ user.last_name }}
+                    <br>
+                    E-mail: {{ user.email }}
+                    <br>    
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% block jquery %}
+    <script>
+        $(document).ready(function(){
+            $('.delete-user').on('click', function(e){
+                e.preventDefault()
+                var user = $(this).attr('data-slug')
+
+                data = {
+                    user: user
+                }
+                $.ajax({
+                    type:"GET",
+                    url: "{% url 'delete_user' %}",
+                    dataType: 'json',
+                    data : data,
+                    success: function(data){
+                        window.location.reload()
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock jquery %}
+
+{% endblock %}

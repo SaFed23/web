@@ -1,0 +1,40 @@
+<div class="col-lg-3 col-md-5 mb-3">
+    <div height="60" class="card h-100">
+    <a href="{{ book.get_absolute_url }}"><img style="background-size:cover" class="card-img-top" height="60" src="{{ book.image.url }}"></a>
+    <div class="card-body">
+        <h5 class="card-title">
+        <a href="{{ book.get_absolute_url }}" style='text-decoration:none'>{{ book.title }}</a>
+        </h5>
+        <p class="card-text">{{ book.author }}</p>
+    </div>
+    <div class="card-footer">
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="row">
+                    {% if book.print_t_l != -1 %}
+                    <div class="col-sm-12">
+                        {{ book.print_t_l }}
+                    </div>
+                    <div class="col-sm-3">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    {% else %}
+                    <div class="col-sm-12">
+                        <small>Нет оценок</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        <div class="col-sm-7" style="text-align:right">
+            <h6>{{ book.cost }} б.р.</h6>
+            {% if request.user.username == "_SaFed_" %}
+            <a href='#' id="delete" class="book-card" data-slug='{{ book.slug }}' style="text-decoration:none"><small class="far fa-trash-alt"></small></a>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+    

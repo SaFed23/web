@@ -1,0 +1,23 @@
+{% extends "mainwindow/wrapper.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="col-sm-10 card" style="text-align:center">
+    <h5>Регистрация нового пользователя</h5>
+</div>
+<br><br>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-10 card">
+            <form action="" method="POST">
+                {{ form.error }}
+                {{ form|crispy }}
+                {% csrf_token %}
+                <br>
+                <input type="submit" value='Зарегистрироваться'>
+                <br><br>
+            </form>
+        </div>
+    </div>   
+</div>  
+{% endblock content %}

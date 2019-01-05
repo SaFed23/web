@@ -1,0 +1,88 @@
+{% extends "mainwindow/wrapper.html" %}
+{% block content %}
+
+<div class="card text-center"><h4>Личный кабинет</h4></div>
+<br><br>
+<div class="row">
+    <div class="col-sm-5">
+        <div class="card text-center">
+            <h5>Личная информация</h5>
+        </div>
+    </div>
+    <div class="col-sm-7">
+        <div class="card text-center">
+            <h5>Корзина</h5>
+        </div>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-sm-5 text-center">
+        <div class="card">
+            <p>
+                Логин: {{ current_user.user }}
+                <br>
+                Имя: {{ current_user.first_name }}
+                <br>
+                Фамилия: {{ current_user.last_name }}
+                <br>
+                E-mail: {{ current_user.email }}
+                <br>    
+            </p>
+        </div>
+    </div>
+    <div class="col-sm-7">
+        <div class="text-center">
+            <ul class = 'button-group'>
+                {% for book in current_user.user_books.all %}
+                <div>
+                    <li class='list-group-item'><div class="card"><a href = '{{ book.get_absolute_url }}' style='text-decoration:none'>{{ book.title }}</a>
+                </div>
+                <br>
+                <div class="row">
+                    <div class = 'col-sm-6'>
+                        <p style="text-align:left; color:rgb(0, 139, 185)">{{ book.author }}</p>
+                    </div>
+                    <div class = 'col-sm-6'>
+                        <p style="text-align:right; color:rgb(0, 139, 185)">Количество: {{ book.total_number }}</p>
+                        <p style="text-align:right; color:rgb(0, 139, 185)">Цена: {{ book.cost }}</p>
+                        <a href='#' id="delete" class="book" data-slug='{{ book.slug }}' style="text-decoration:none">Удалить <i class="fas fa-trash-alt"></i></a>
+                    </div>
+                </div>
+                </div></li>
+                <br>
+                {% endfor %}
+            </ul>
+            <div class="offset-xl-8 card">
+            <p>Всего: {{ current_user.total_cost }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block jquery %}
+    <script>
+        $(document).ready(function(){
+            $('.book').on('click', function(e){
+                e.preventDefault()
+                var book_slug = $(this).attr('data-slug')
+
+                data = {
+                    book_slug: book_slug
+                }
+                $.ajax({
+                    type:"GET",
+                    url: "{% url 'delete_book' %}",
+                    dataType: 'json',
+                    data : data,
+                    success: function(data){
+                        window.location.reload()
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock jquery %}
+
+
+{% endblock content %}

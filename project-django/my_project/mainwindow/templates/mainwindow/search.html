@@ -1,0 +1,15 @@
+{% extends "mainwindow/wrapper.html" %}
+
+{% block content %}
+{% include "mainwindow/includes/search.html" %}
+<br>
+    <div class="headerTitle card">
+        <h2 class="navbar-brand">Найденные книги: {{ founded_books.count }}</h2>
+    </div>
+    <br>
+    <div class="row">    
+        {% for book in founded_books %}
+        {% include "mainwindow/includes/book_card.html" %}
+        {% endfor %}
+    </div>
+{% endblock content %}

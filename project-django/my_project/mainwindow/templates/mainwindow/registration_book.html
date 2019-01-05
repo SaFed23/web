@@ -1,0 +1,22 @@
+{% extends "mainwindow/wrapper.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="col-sm-10 card" style="text-align:center">
+    <h5>Новый жанр</h5>
+</div>
+<br><br>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-10 card">
+            <form action="" method="POST" enctype="multipart/form-data">
+                {{ form|crispy }}
+                {% csrf_token %}
+                <br>
+                <input type="submit" value='Добавить'>
+                <br><br>
+            </form>
+        </div>
+    </div>   
+</div>  
+{% endblock content %}

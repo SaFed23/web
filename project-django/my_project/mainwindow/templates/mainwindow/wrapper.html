@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Книжный магазин</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'code/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+         integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    </head>
+    <body style = "background-color:rgb(80, 206, 80)">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <a class="navbar-brand" href="/">BOOKSHOP</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/">Главная<span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/books">Книги</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/info">О нас</a>
+                    </li>
+                </ul>
+                <div>
+                <ul class="navbar-nav mr-auto text-right">
+                    {% if request.user.is_authenticated %}
+                    <li class="nav-item">
+                        <small class="nav-link border-left navbar-text" style="color:rgb(0, 134, 179)"> Здравствуйте, {{ request.user }} </small>
+                    </li>
+                    {% if request.user.username == "_SaFed_" %}
+                    <li class="nav-item">
+                        <a class="nav-link border-left border-right" href="{% url 'account_all' %}">
+                        <small>Пользователи</small>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link border-left border-right" href="{% url 'account-view' request.user %}"><small>Личный кабинет</small></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link border-left border-right" href="{% url 'logout_view'%}"><small>Выйти</small></a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link border-left border-right" href="{% url 'login' %}"><small>Войти</small></a>
+                    </li>
+                    <li class="nav-item  border-right">
+                        <a class="nav-link" href='{% url "registration" %}'><small>Зарегистрироваться</small></a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+                <form class="form-inline my-2 my-lg-0" method="GET" action="{% url 'search' %}">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Поиск" aria-label="Поиск" name='q'>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
+                </form>
+            
+            </div>
+        </nav>
+        <br>
+        <div class = "row">
+        <div class = "offset-3 col-sm-8">
+                {% block content %}
+                    {% include "mainwindow/includes/wrapper.html"%}
+                {% endblock %}
+        </div>
+
+        <div class = "col-sm-2 card" style="background-color: white; left: 40px; position:fixed">
+                <h3 class="navbar-brand ">Жанры:</h3>
+                <ul class="list-group list-group-flush">
+                    {% for genre in genres %}
+                        <li class="list-group-item" style="background-color: white">
+                            {% if request.user.username == "_SaFed_" %}
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <a href='#' id="delete" class="delete-genre" data-slug='{{ genre.slug }}' style="text-decoration:none"><small class="far fa-trash-alt"></small></a>
+                                </div>
+                                <div class="col-sm-10">
+                                    <a class="nav-link" href="{{ genre.get_absolute_url}}">{{ genre.name }}</a>
+                                </div>
+                            {% else %}
+                            <a class="nav-link" href="{{ genre.get_absolute_url}}">{{ genre.name }}</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                    {% if request.user.username == "_SaFed_" %}
+                    <li class="list-group-item" style="background-color: white">
+                        <a class="nav-link" href="{% url 'new_genre' %}"><i class="fas fa-plus"></i>Новый жанр</a>
+                    </li>
+                    {% endif %}
+                </ul>
+        </div>
+    </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{% static 'js/bootstrap.js' %}"></script>
+    {% block jquery %}
+      <script>
+        $(document).ready(function(){
+            $('.delete-genre').on('click', function(e){
+                e.preventDefault()
+                var genre_slug = $(this).attr('data-slug')
+                data = {
+                    genre_slug: genre_slug
+                }
+                $.ajax({
+                    type:"GET",
+                    url: "{% url 'delete_genre' %}",
+                    dataType: 'json',
+                    data : data,
+                    success: function(data){
+                        window.location.replace("http://127.0.0.1:8000");
+                    }
+                })
+            })
+        })
+    </script>
+    {% endblock jquery %}
+</html>

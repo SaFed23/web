@@ -1,0 +1,49 @@
+{% extends "mainwindow/wrapper.html" %}
+
+{% block content %}
+    {% include "mainwindow/includes/books.html" %}
+    <br>
+    <div class="headerTitle card">
+        <h2 class="navbar-brand">Все книги на нашем сайте</h2>
+    </div>
+    <br>
+    <div class="row">
+        {% for book in books %}
+        {% include "mainwindow/includes/book_card.html" %}
+        {% endfor %}
+        {% if request.user.username == "_SaFed_" %}
+        <div class="col-lg-3 col-md-5 mb-3">
+            <div height="60" class="card h-100">
+                <div class="card-body">
+                    <a class="nav-link" style="text-align:center" href="{% url 'new_book' %}">
+                    <i class="fas fa-plus"></i><br><br>Новая книга
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% block jquery %}
+    <script>
+        $(document).ready(function(){
+            $('.book-card').on('click', function(e){
+                e.preventDefault()
+                var book_slug = $(this).attr('data-slug')
+
+                data = {
+                    book_slug: book_slug
+                }
+                $.ajax({
+                    type:"GET",
+                    url: "{% url 'del_book_shop' %}",
+                    dataType: 'json',
+                    data : data,
+                    success: function(data){
+                        window.location.reload()
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock jquery %}
+{% endblock %}
